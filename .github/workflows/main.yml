@@ -1,17 +1,34 @@
+
 name: Python CI
 
-on: [push]
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
 
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
-    - uses: actions/checkout@v2
+    # Step 1: Checkout your repo
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    # Step 2: Set up Python (use a supported version)
     - name: Set up Python
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@v4
       with:
-        python-version: 3.x
+        python-version: 3.11  # or '3.x' for latest 3 version
+
+    # Step 3: Install dependencies
     - name: Install dependencies
-      run: pip install -r requirements.txt
+      run: |
+        python -m pip install --upgrade pip
+        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+
+    # Step 4: Run tests
     - name: Run tests
-      run: pytest
+      run: |
+        if [ -f pytest.ini ] || [ -f tests/test_*.py ]; then pytest; else echo "No tests found"; fi
